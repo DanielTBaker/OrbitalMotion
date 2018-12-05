@@ -54,8 +54,6 @@ nt=np.min((sz[1],args.bt)).astype(int)
 
 if args.al==0:
 	dr='./AL0/'
-	if not os.path.isdir(dr):
-		os.makedirs(dr)
 else:
 	dr='./AL%s/' % format(args.al,'.3e')
 	if not os.path.isdir(dr):
