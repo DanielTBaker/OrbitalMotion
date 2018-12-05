@@ -89,9 +89,8 @@ else:
 ##Import mask
 mf=np.load(dr+fname+'MaskF.npy')
 mt=np.load(dr+fname+'MaskT.npy')
-mt0=np.copy(mt)
 mt[mt>0]==1
-
+mf[mf>0]==1
 
 ##Divide simulations between processors 
 delta=int(np.mod(n,size))
@@ -131,11 +130,13 @@ L=np.zeros((n,Lt.shape[1]))
 MF=np.load('%s%sMF.npy' % (dr,fname))
 Scal=np.load('%s%sScal.npy' % (dr,fname))
 phi=np.load('%sphi.npy' % fname)	
+nw=int((K2.shape[0]-1)/2)
+
 
 avg=np.zeros(nt)
 for i in range(nt):
-	if i>20 and i<mt.shape[0]-20:
-		avg[i]=np.mean(mt0[i-20:i+21])
+	if i>nw and i<mt.shape[0]-nw:
+		avg[i]=np.mean(mt[i-nw:i+nw+1])
 MF2=np.mean(MF[:,avg==1],axis=1)
 if args.N:
 	L2=np.zeros((n,Lt.shape[1]))

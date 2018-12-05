@@ -64,21 +64,16 @@ else:
 print('Parsed')
 sys.stdout.flush()
 
-def svd(chi,nf,nt):
-	U,sig,V=np.linalg.svd(chi)
-	SIG=np.zeros((nf,nt))
-	SIG[0,0]=sig[0]
-	temp=np.matmul(U,np.matmul(SIG,V))
-	return(chi/temp)
-
 nthread=args.th
 
 print('Start FFT Setup')
+##Check if wisdom exists to speed the ffts
 sys.stdout.flush()
 try:
 	pyfftw.import_wisdom(pkl.load(open('pyfftwwis-1-%s.pkl' % args.th,'rb')))
 except:
 	print('No Wisdom')
+##Initialize ffts
 fft_G1= pyfftw.empty_aligned((nf,nt), dtype='complex128')
 fft_G2= pyfftw.empty_aligned((nf,nt), dtype='complex128')
 fft_object_GF = pyfftw.FFTW(fft_G1,fft_G2, axes=(0,1), direction='FFTW_FORWARD',threads=nthread)
@@ -115,7 +110,7 @@ tarr=np.ones((tau.shape[0],freq.shape[0])).T*tau
 tarr=tarr.T
 X=(tarr,farr)
 
-##Determine mask for missing time bins and reweight dspec to account for variations in gain
+##Determine mask for missing time bins and reweight dspec (via svd)) to account for variations in gain
 print('Find Mask')
 mf,mt,dspec=fitmod.NormMask(dspec,args.lf,args.lt)
 t=np.linspace(1,args.lf,args.lf)
@@ -150,7 +145,7 @@ fft_object_dspecF12()
 fft_object_dspecF23()
 C_data[:]=np.copy(np.abs(fft_dspec3[:]/np.sqrt(nf*nt))**2)
 
-fft_dspec1[:]=np.copy(dspec)*mf[:,np.newaxis]
+fft_dspec1[:]=np.copy(dspec)
 fft_object_dspecF12()
 F[:]=np.copy(fft_dspec2)/np.sqrt(nf)
 
@@ -277,30 +272,30 @@ if args.G:
 	CC=np.copy(fitmod.gauss_to_chi(CG,fft_G1,fft_G2,fft_object_GF,fft_object_GB))
 else:
 	print('Daily Fit Only')
-fft_dspec3[:]=CC
-fft_object_dspecB32()
-fft_object_dspecB21()
-fft_dspec1*=IFCM2
-fft_object_dspecF12()
-fft_object_dspecF23()
-CC2=np.copy(np.real(fft_dspec3))
-fft_dspec3[:]=CC+N
-fft_object_dspecB32()
-fft_object_dspecB21()
-fft_dspec1*=IFCM2
-fft_object_dspecF12()
-fft_object_dspecF23()
-CCN=np.copy(np.real(fft_dspec3))
+#fft_dspec3[:]=CC
+#fft_object_dspecB32()
+#fft_object_dspecB21()
+#fft_dspec1*=IFCM2
+#fft_object_dspecF12()
+#fft_object_dspecF23()
+#CC2=np.copy(np.real(fft_dspec3))
+#fft_dspec3[:]=CC+N
+#fft_object_dspecB32()
+#fft_object_dspecB21()
+#fft_dspec1*=IFCM2
+#fft_object_dspecF12()
+#fft_object_dspecF23()
+#CCN=np.copy(np.real(fft_dspec3))
 
 
 nw=args.lt
-CP=np.fft.ifftshift(np.gradient(np.fft.fftshift(CC2,axes=1),freq[1],axis=1),axes=1)
-FK0=(CC2/np.power(CCN,2))*(1+(freq*CP/CC2))
-FK0[CC2==0]=0
+CP=np.fft.ifftshift(np.gradient(np.fft.fftshift(CC,axes=1),freq[1],axis=1),axes=1)
+FK0=(CC/np.power(CC+N,2))*(1+(freq*CP/CC))
+FK0[CC==0]=0
 K0=np.fft.ifft(FK0,axis=1)
 K2=np.roll(K0,nw,axis=1)[:,:2*nw+1]
-temp=FK0*CC2*(1+(freq*CP/CC2))
-temp[CC2==0]=0
+temp=FK0*CC*(1+(freq*CP/CC))
+temp[CC==0]=0
 A=1/(simps(np.fft.fftshift(temp,axes=1),dx=freq[1])*2*np.pi*nt)
 
 
@@ -312,7 +307,7 @@ L=np.real(F[1:,:]*F2*(A[1:][:,np.newaxis]))
 
 np.save('%s%sLens.npy' % (dr,fname),L)
 np.save('%s%sA.npy' % (dr,fname),A)
-np.save('%s%sK.npy' % (dr,fname),K0)
+np.save('%s%sK2.npy' % (dr,fname),K2)
 
 fft_dspec3[:]=CC+N
 fft_object_dspecB32()

@@ -88,6 +88,9 @@ pkl.dump(pyfftw.export_wisdom(),open('pyfftwwis-%s-%s.pkl' % (size,args.th),'wb'
 mf=np.load(dr+fname+'MaskF.npy')
 mt=np.load(dr+fname+'MaskT.npy')
 
+mt[mt>0]==1
+mf[mf>0]==1
+
 ##Divide simulations between processors 
 delta=int(np.mod(n,size))
 k=int((n-delta)/size)
@@ -141,7 +144,7 @@ for k in range(lengs[int(rank)]):
 	fft_dspec1[:]=interp(t2)
 	fft_dspec1[:]+=np.sqrt(N)*np.random.normal(0,1,(nf,nt))
 	fft_dspec1*=mf[:,np.newaxis]
-	fft_dspec1[:,mt==0]=0
+	fft_dspec1*=mt
 	fft_object_dspecF12()
 	fft_dspec2/=np.sqrt(nf)
 	for i in range(F2.shape[0]):

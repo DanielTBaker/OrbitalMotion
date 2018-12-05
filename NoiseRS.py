@@ -87,8 +87,8 @@ else:
 ##Import mask
 mf=np.load(dr+fname+'MaskF.npy')
 mt=np.load(dr+fname+'MaskT.npy')
-mt0=np.copy(mt)
 mt[mt>0]==1
+mf[mf>0]==1
 
 
 ##Divide simulations between processors 
@@ -126,11 +126,12 @@ K2=np.load('%s%sK2.npy' % (dr,fname))
 F2=np.zeros(fft_dspec2[1:,:].shape,dtype=complex)
 L=np.zeros(F2.shape)
 MF=np.load('%s%sMF.npy' % (dr,fname))
+nw=int((K2.shape[0]-1)/2)
 
 avg=np.zeros(nt)
 for i in range(nt):
-	if i>20 and i<mt.shape[0]-20:
-		avg[i]=np.mean(mt0[i-20:i+21])
+	if i>nw and i<mt.shape[0]-nw:
+		avg[i]=np.mean(mt[i-nw:i+nw+1])
 MF2=np.mean(MF[:,avg==1],axis=1)
 
 for k in range(lengs[int(rank)]):
@@ -146,7 +147,7 @@ for k in range(lengs[int(rank)]):
 	fft_dspec1*=np.sqrt(fft_dspec1.shape[0]*fft_dspec1.shape[1])
 	fft_dspec1[:]+=np.sqrt(N)*np.random.normal(0,1,(nf,nt))
 	fft_dspec1*=mf[:,np.newaxis]
-	fft_dspec1[:,mt==0]=0
+	fft_dspec1*=mt
 	fft_object_dspecF12()
 	fft_dspec2/=np.sqrt(nf)
 	for i in range(F2.shape[0]):
