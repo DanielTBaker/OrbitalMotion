@@ -172,8 +172,6 @@ def NormMask(dspec,lf,lt):
             mf[starts[i]:stops[i]+1]=0
     temp=dspec[mf>0,:][:,mt>0]
     temp2=svd(temp,temp.shape[0],temp.shape[1])
-    for i in range(4):
-        temp2=svd(temp2,temp.shape[0],temp.shape[1])
     temp3=np.zeros((nf,temp2.shape[1]))
     temp3[mf>0,:]=temp2
     dspec2[:,mt>0]=temp3
@@ -195,8 +193,6 @@ def NormMask(dspec,lf,lt):
             mf[starts[i]:stops[i]+1]=0
     temp=dspec[mf>0,:][:,mt>0]
     temp2=svd(temp,temp.shape[0],temp.shape[1])
-    for i in range(4):
-        temp2=svd(temp2,temp.shape[0],temp.shape[1])
     temp3=np.zeros((nf,temp2.shape[1]))
     temp3[mf>0,:]=temp2
     dspec2*=0
