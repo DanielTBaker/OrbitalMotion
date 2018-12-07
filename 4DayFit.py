@@ -174,11 +174,16 @@ if rank>0:
 				print('First %s Evaluations in %s seconds' %(runs,rt))	
 if rank==0:
 	PF=res.x
+	cov_full=np.sqrt(res.hess_inv.todense()/(size*(int(nf/2)+1-1)*(nt-1))
+	np.save(args.f+'FitCov.npy',cov_full)
 else:
 	PF=np.zeros(x.shape)
+	cov_full=np.zeros((x.shape,x.shape))
 comm.Bcast(PF,root=0)
+comm.Bcast(cov_full,root=0)
+cov=cov_full[7*rank+0,7*rank+1,7*rank+2,7*rank+3,7*rank+4,7*rank+5,-6,-5,-4,-3,-2,-1,7*rank+6,:][:,7*rank+0,7*rank+1,7*rank+2,7*rank+3,7*rank+4,7*rank+5,-6,-5,-4,-3,-2,-1,7*rank+6]
 P=np.zeros(13)
 P[np.array([0,1,2,3,4,5,10])]=PF[rank*7:(rank+1)*7]
 P[np.array([6,7,8,9,11,12])]=PF[-6:]
 np.save(fname+'Fit2.npy',P)
-
+np.save(fname+'Fit2Cov.npy',cov)
