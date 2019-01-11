@@ -174,7 +174,7 @@ if rank>0:
 				print('First %s Evaluations in %s seconds' %(runs,rt))	
 if rank==0:
 	PF=res.x
-	cov_full=np.sqrt(res.hess_inv.todense()/(size*(int(nf/2)+1-1)*(nt-1))
+	cov_full=np.sqrt(res.hess_inv.todense())/(size*(int(nf/2)+1-1)*(nt-1))
 	np.save(args.f+'FitCov.npy',cov_full)
 else:
 	PF=np.zeros(x.shape)

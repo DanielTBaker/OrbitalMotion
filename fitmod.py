@@ -30,14 +30,15 @@ def rng_find(s):
 ##Convert from gaussian to chi using Cchi=Cgauss*Cgauss + delta(l)X(total gaussian power)
 def gauss_to_chi(C,fft1,fft2,fftF,fftB):
 	Ctemp=np.zeros(C.shape,dtype=complex)
-	fft2[:]=C[:]
+	fft2[:]=np.copy(C[:])
 	fft2[1:,:]=fft2[1:,:][::-1,:]
 	fft2[:,1:]=fft2[:,1:][:,::-1]
-	Ctemp[:]=fftB()[:]
-	fft2[:]=C[:]
+	fftB()
+	Ctemp[:]=np.copy(fft1)
+	fft2[:]=np.copy(C[:])
 	fftB()
 	fft1[:]*=Ctemp
-	fft1[:]=np.abs(fft1[:])
+	#fft1[:]=np.abs(fft1[:])
 	fftF()
 	fft2[0,:]=0
 	fft2[:,0]=0
@@ -49,7 +50,7 @@ def pow_holes(C,IFCM,fft1,fft2,fft3,fftF12,fftF23,fftB32,fftB21):
 	fft3[:]=C[:]
 	fftB32()
 	fftB21()
-	fft1[:]=np.real(fft1)*IFCM
+	fft1[:]*=IFCM
 	fftF12()
 	fftF23()
 	fft3[:]=np.real(fft3)
