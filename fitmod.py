@@ -78,7 +78,6 @@ def fit_func(X,IFCM,P,fftG1,fftG2,fftGF,fftGB,fftD1,fftD2,fftD3,fftDF12,fftDF23,
 def costfunc(P,C,X,IFCM,fftG1,fftG2,fftGF,fftGB,fftD1,fftD2,fftD3,fftDF12,fftDF23,fftDB32,fftDB21,tau_skip=1):
 	fit_func(X,IFCM,P,fftG1,fftG2,fftGF,fftGB,fftD1,fftD2,fftD3,fftDF12,fftDF23,fftDB32,fftDB21)
 	temp=np.log(fftD3[:,1:])+(C/fftD3[:,1:])
-	sys.stdout.flush()
 	return(np.real(np.sum(temp[tau_skip:,:])))
 
 def costfuncGlob(P,C,X,IFCM,fftG1,fftG2,fftGF,fftGB,fftD1,fftD2,fftD3,fftDF12,fftDF23,fftDB32,fftDB21):
