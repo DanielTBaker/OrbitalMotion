@@ -109,12 +109,12 @@ mt, mf, svd_gaps = fitmod.NormMask(dspec,args.lf,args.lt)
 msk_sharp=mt[np.newaxis,:]*mf[:,np.newaxis]
 msk_smooth=np.copy(msk_sharp)
 t=np.linspace(1,args.lf,args.lf)
-start,stop=bnd_find(mf,mf.shape[0])
+start,stop=fitmod.bnd_find(mf,mf.shape[0])
 for i in range(start.shape[0]):
 	msk_smooth[start[i]:start[i]+args.lf,:]*=(1-np.cos(np.pi*t[:,np.newaxis]/(args.lf+1)))/2
 	msk_smooth[stop[i]-args.lf+1:stop[i]+1,:]*=(np.cos(np.pi*(t[:,np.newaxis])/(args.lf+1))+1)/2
 t=np.linspace(1,args.lt,args.lt)
-start,stop=bnd_find(mt,mt.shape[0])
+start,stop=fitmod.bnd_find(mt,mt.shape[0])
 for i in range(start.shape[0]):
 	msk_smooth[:,start[i]:start[i]+args.lt]*=(1-np.cos(np.pi*t[np.newaxis,:]/(args.lt+1)))/2
 	msk_smooth[:,stop[i]-args.lt+1:stop[i]+1]*=(np.cos(np.pi*(t[np.newaxis,:])/(args.lt+1))+1)/2
