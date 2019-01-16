@@ -105,21 +105,23 @@ X=(tarr,farr)
 
 ##Determine mask for missing time bins and reweight dspec to account for variations in gain
 print('Find Mask')
-mf,mt,dspec=fitmod.NormMask(dspec,args.lf,args.lt)
+mt, mf, svd_gaps = fitmod.NormMask(dspec,args.lf,args.lt)
+msk_sharp=mt[np.newaxis,:]*mf[:,np.newaxis]
+msk_smooth=np.copy(msk_sharp)
 t=np.linspace(1,args.lf,args.lf)
-start,stop=fitmod.bnd_find(mf,mf.shape[0])
+start,stop=bnd_find(mf,mf.shape[0])
 for i in range(start.shape[0]):
-    mf[start[i]:start[i]+args.lf]=(1-np.cos(np.pi*t/(args.lf+1)))/2
-    mf[stop[i]-args.lf+1:stop[i]+1]=(np.cos(np.pi*(t)/(args.lf+1))+1)/2
+	msk_smooth[start[i]:start[i]+args.lf,:]*=(1-np.cos(np.pi*t[:,np.newaxis]/(args.lf+1)))/2
+	msk_smooth[stop[i]-args.lf+1:stop[i]+1,:]*=(np.cos(np.pi*(t[:,np.newaxis])/(args.lf+1))+1)/2
 t=np.linspace(1,args.lt,args.lt)
-start,stop=fitmod.bnd_find(mt,mt.shape[0])
+start,stop=bnd_find(mt,mt.shape[0])
 for i in range(start.shape[0]):
-    mt[start[i]:start[i]+args.lt]=(1-np.cos(np.pi*t/(args.lt+1)))/2
-    mt[stop[i]-args.lt+1:stop[i]+1]=(np.cos(np.pi*(t)/(args.lt+1))+1)/2
+	msk_smooth[:,start[i]:start[i]+args.lt]*=(1-np.cos(np.pi*t[np.newaxis,:]/(args.lt+1)))/2
+	msk_smooth[:,stop[i]-args.lt+1:stop[i]+1]*=(np.cos(np.pi*(t[np.newaxis,:])/(args.lt+1))+1)/2
 
 print('Find IFCM')
 sys.stdout.flush()
-fft_G1[:]=(np.ones((nt,nf))*mf).T*mt
+fft_G1[:]=msk_smooth*svd_gaps
 ##Correlation function of mask for use in conversions
 fft_object_GF()
 fft_G2*=np.conjugate(fft_G2)/(nf*nt)
@@ -129,7 +131,7 @@ IFCM=np.copy(np.real(fft_G1))
 ##Find Power Spectrum
 print('Caclulate Power')
 sys.stdout.flush()
-fft_dspec1[:]=np.copy(dspec)*mf[:,np.newaxis]*mt[np.newaxis,:]
+fft_dspec1[:]=dspec*msk_smooth
 fft_object_dspecF12()
 fft_object_dspecF23()
 C_data[:]=np.copy(np.abs(fft_dspec3[:]/np.sqrt(nf*nt))**2)
@@ -174,16 +176,10 @@ if rank>0:
 				print('First %s Evaluations in %s seconds' %(runs,rt))	
 if rank==0:
 	PF=res.x
-	cov_full=np.sqrt(res.hess_inv.todense())/(size*(int(nf/2)+1-1)*(nt-1))
-	np.save(args.f+'FitCov.npy',cov_full)
 else:
 	PF=np.zeros(x.shape)
-	cov_full=np.zeros((x.shape,x.shape))
 comm.Bcast(PF,root=0)
-comm.Bcast(cov_full,root=0)
-cov=cov_full[7*rank+0,7*rank+1,7*rank+2,7*rank+3,7*rank+4,7*rank+5,-6,-5,-4,-3,-2,-1,7*rank+6,:][:,7*rank+0,7*rank+1,7*rank+2,7*rank+3,7*rank+4,7*rank+5,-6,-5,-4,-3,-2,-1,7*rank+6]
 P=np.zeros(13)
 P[np.array([0,1,2,3,4,5,10])]=PF[rank*7:(rank+1)*7]
 P[np.array([6,7,8,9,11,12])]=PF[-6:]
 np.save(fname+'Fit2.npy',P)
-np.save(fname+'Fit2Cov.npy',cov)

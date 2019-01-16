@@ -38,11 +38,8 @@ def gauss_to_chi(C,fft1,fft2,fftF,fftB):
 	fft2[:]=np.copy(C[:])
 	fftB()
 	fft1[:]*=Ctemp
-	#fft1[:]=np.abs(fft1[:])
 	fftF()
-	fft2[0,:]=0
-	fft2[:,0]=0
-	fft2[0,0]=C.shape[0]*C.shape[1]
+	fft2[0,0]+=(np.sum(C)/np.sqrt(C.shape[0]*C.shape[1]))**2
 	return(np.real(fft2[:1+int(C.shape[0]/2),:]))
 
 ##Alter power spectrum to account for holes (C=C0*Cmask)
@@ -62,8 +59,6 @@ def pow_arr2D2(X,A=1e8,t01=.01,nt1=2,t02=.01,nt2=2,nf=2,f01=.01,f02=.01,B=0,A2=1
 	temp=np.zeros(tau.shape)
 	#temp[tau[:,1]<0,:]=(1./np.power(1+np.power((f[tau[:,1]<0,:]+B*np.sqrt(np.abs(tau[tau[:,1]<0,:])))/(f01+b01*np.abs(tau[tau[:,1]<0,:])),2),nf))*(A/np.power(1+np.power(tau[tau[:,1]<0,:]/t01,2),nt1))+(A/np.power(1+np.power(tau[tau[:,1]<0,:]/t02,2),nt2))*A2/np.power(1+np.power((f[tau[:,1]<0,:]-B*np.sqrt(np.abs(tau[tau[:,1]<0,:])))/(f02+b02*np.abs(tau[tau[:,1]<0,:])),2),nf)
 	temp[tau[:,1]>0,:]=(1./np.power(1+np.power((f[tau[:,1]>0,:]-B*np.sqrt(tau[tau[:,1]>0,:]))/(f01+b01*np.abs(tau[tau[:,1]>0,:])),2),nf))*(A/np.power(1+np.power(tau[tau[:,1]>0,:]/t01,2),nt1))+(A/np.power(1+np.power(tau[tau[:,1]>0,:]/t02,2),nt2))*A2/np.power(1+np.power((f[tau[:,1]>0,:]+B*np.sqrt(tau[tau[:,1]>0,:]))/(f02+b02*np.abs(tau[tau[:,1]>0,:])),2),nf)
-	temp[tau==0]=0
-	#temp[f==0]=0
 	return(temp)
 
 ##Model for chi-square power spectrum from gaussian with holes
@@ -149,55 +144,54 @@ def svd(chi,nf,nt):
 
 ##Improved Masking and Normalization Code
 def NormMask(dspec,lf,lt):
-    dspec2=np.zeros(dspec.shape)
-    nt=dspec.shape[1]
-    nf=dspec.shape[0]
-    mt=np.ones(nt)
-    mf=np.ones(nf)
-    mt[np.std(dspec,axis=0)==0]=0
-    s=np.std(dspec,axis=0)
-    m=np.mean(dspec,axis=0)
-    mt[m<s/2]=0
-    starts,stops=bnd_find(mt,nt)
-    for i in range(starts.shape[0]):
-        if stops[i]-starts[i]<3*lt:
-            mt[starts[i]:stops[i]+1]=0
-    mf[np.std(dspec[:,mt==1],axis=1)==0]=0
-    s=np.std(dspec[:,mt==1],axis=1)
-    m=np.mean(dspec[:,mt==1],axis=1)
-    mf[m<s/2]=0
-    starts,stops=bnd_find(mf,nf)
-    for i in range(starts.shape[0]):
-        if stops[i]-starts[i]<3*lf:
-            mf[starts[i]:stops[i]+1]=0
-    temp=dspec[mf>0,:][:,mt>0]
-    temp2=svd(temp,temp.shape[0],temp.shape[1])
-    temp3=np.zeros((nf,temp2.shape[1]))
-    temp3[mf>0,:]=temp2
-    dspec2[:,mt>0]=temp3
-    s=np.std(dspec2[mf==1,:],axis=0)
-    ss=np.std(s[mt==1])
-    ms=np.mean(s[mt==1])
-    mt[s>ms+2*ss]=0
-    s=np.std(dspec2[:,mt==1],axis=1)
-    ss=np.std(s[mf==1])
-    ms=np.mean(s[mf==1])
-    mf[s>ms+2*ss]=0
-    starts,stops=bnd_find(mt,nt)
-    for i in range(starts.shape[0]):
-        if stops[i]-starts[i]<3*lt:
-            mt[starts[i]:stops[i]+1]=0
-    starts,stops=bnd_find(mf,nf)
-    for i in range(starts.shape[0]):
-        if stops[i]-starts[i]<3*lf:
-            mf[starts[i]:stops[i]+1]=0
-    temp=dspec[mf>0,:][:,mt>0]
-    temp2=svd(temp,temp.shape[0],temp.shape[1])
-    temp3=np.zeros((nf,temp2.shape[1]))
-    temp3[mf>0,:]=temp2
-    dspec2*=0
-    dspec2[:,mt>0]=temp3
-    return(mf,mt,dspec2)
+	##Cut out very noisy bins
+	idx_t=np.linspace(0,dspec.shape[1]-1,dspec.shape[1],dtype=int)
+	idx_f=np.linspace(0,dspec.shape[0]-1,dspec.shape[0],dtype=int)
+	dspec2=dspec[:,np.mean(dspec,axis=0)>np.std(dspec,axis=0)/2]
+	idx_t=idx_t[np.mean(dspec,axis=0)>np.std(dspec,axis=0)/2]
+	idx_f=idx_f[np.mean(dspec2,axis=1)>np.std(dspec2,axis=1)/2]
+	dspec2=dspec2[np.mean(dspec2,axis=1)>np.std(dspec2,axis=1)/2,:]
+
+	##SVD
+	u,s,w = np.linalg.svd(dspec2)
+	s[2:] = 0.0
+	S = np.zeros([len(u), len(w)], np.complex128)
+	S[:len(s), :len(s)] = np.diag(s)
+	model = np.dot(np.dot(u, S), w)
+
+	##Cut out bins the behave poorly under SVD
+	idx_t=idx_t[np.std(dspec2/model.real,0)<2]
+	idx_f=idx_f[np.std(dspec2/model.real,1)<2]
+	dspec3=dspec2[np.std(dspec2/model.real,1)<2,:]
+	dspec3=dspec3[:,np.std(dspec2/model.real,0)<2]
+
+	##SVD on good bins only
+	u,s,w = np.linalg.svd(dspec3)
+	s[1:] = 0.0
+	S = np.zeros([len(u), len(w)], np.complex128)
+	S[:len(s), :len(s)] = np.diag(s)
+	model = np.dot(np.dot(u, S), w)
+
+	##Form full SVD (set to 1 in gaps/bad bins)
+	svd_gaps=np.ones(dspec.shape)
+	for i in range(idx_f.shape[0]):
+		svd_gaps[idx_f[i],idx_t]=model[i,:]
+
+	##Setup 1d masks
+	mt=np.zeros(dspec.shape[1])
+	mt[idx_t]=1
+	mf=np.zeros(dspec.shape[0])
+	mf[idx_f]=1   
+	##Remove short unmasked sections
+	starts,stops=bnd_find(mf,mf.shape[0])
+	for i in range(starts.shape[0]):
+		if stops[i]-starts[i]<2*lf+2:
+			mf[starts[i]:stops[i]+1]=0
+	starts,stops=bnd_find(mt,mt.shape[0])
+	for i in range(starts.shape[0]):
+		if stops[i]-starts[i]<2*lt+2:
+			mt[starts[i]:stops[i]+1]=0
+	return(mt,mf,svd_gaps)
 
 ##Apply transfer function to input lens
 def FTR(FL,FTS,FTC,N,nMF,nT,scal):
