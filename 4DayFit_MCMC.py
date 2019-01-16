@@ -45,7 +45,7 @@ parser.set_defaults(G=False)
 parser.set_defaults(fit=True)
 args=parser.parse_args()
 
-dates=np.array([re.findall('[0-9][0-9]dspec.npy',f) for f in os.listdir('../WorkSpace') if re.search('[0-9]+dspec.npy',f)])[:,0]
+dates=np.array([re.findall('[0-9][0-9]dspec.npy',f) for f in os.listdir('./') if re.search('[0-9]+dspec.npy',f)])[:,0]
 
 nt=500
 nf=500
@@ -119,7 +119,7 @@ names[-6:]=np.array(['nf','f01','f02','B','b01','b02'])
 pos=[(np.random.normal(0,1,ndim)*start/100)+start for i in range(nwalkers)]
 
 print('pre-pool')
-pool = MPIPool()
+pool = MPIPool(loadbalance=True)
 if not pool.is_master():
 	pool.wait()
 	sys.exit(0)
