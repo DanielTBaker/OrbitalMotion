@@ -185,13 +185,16 @@ for i in range(4):
 	for j in range(7):
 		plt.figure()
 		for k in range(nwalkers):
-			plt.plot(sampler.chain[i*7+j,:,k])
-		plt.title('%s (%s) : %s +- %s (%s)' %(names[i*7+j],i,sampler.chain[i*7+j,:,:].mean(),sampler.chain[i*7+j,:,:].std(),start[i*7+j]))
-		plt.savefig(args.f+dates[0][:2]+'')
+			plt.plot(sampler.chain[k,:,names[i*7+j]])
+		plt.title('%s (%s) : %s +- %s (%s)' %(names[i*7+j],i,sampler.chain[:,:,names[i*7+j]].mean(),sampler.chain[:,:,names[i*7+j]].std(),start[i*7+j]))
+		plt.savefig(args.f+dates[i][:2]+names[i*7+j]+'.npy')
+		plt.clf()
 for i in range(6):
 	plt.figure()
 	for k in range(nwalkers):
-		plt.plot(sampler.chain[-6+i,:,k])
-	plt.title('%s : %s +- %s (%s)' %(names[-6+i],sampler.chain[-6+i,:,:].mean(),sampler.chain[-6+i,:,:].std(),start[-6+i]))
+		plt.plot(sampler.chain[k,:,-6+i])
+	plt.title('%s : %s +- %s (%s)' %(names[-6+i],sampler.chain[:,:,-6+i].mean(),sampler.chain[:,:,-6+i].std(),start[-6+i]))
+	plt.savefig(args.f+names[-6+i]+'.npy')
+	plt.clf()
 	
 pool.close()
