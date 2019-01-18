@@ -16,12 +16,12 @@ Arguments:
 import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pyplot as plt
+import pyfftw
 import numpy as np
 import fitmod
 import argparse
 import weight
 import sys
-import pyfftw
 import os
 import re
 import pickle as pkl
