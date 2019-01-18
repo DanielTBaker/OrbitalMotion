@@ -39,6 +39,7 @@ parser.add_argument('-bf',type=float,default=np.inf,help='Number of Frequncy Bin
 parser.add_argument('-lt', type=int,default = 50,help='Mask Smoothing Length in Time')
 parser.add_argument('-lf', type=int,default = 20,help='Mask Smoothing Length in Frequency')
 parser.add_argument('-th', type=int,default = 8,help='Number of Threads')
+parser.add_argument('-ns', type=int,default = 50,help='Number of Steps')
 
 parser.set_defaults(T=False)
 parser.set_defaults(G=False)
@@ -176,9 +177,8 @@ lwrs[-2:]=np.array([-np.inf,-np.inf])
 uprs=np.ones(34)*np.inf
 
 sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob, pool=pool,args=(C_list,X,IFCM_list,lwrs,uprs))
-nsteps = 50
-for i, result in enumerate(sampler.sample(pos, iterations=nsteps)):
-    if (i+1) % 5 == 0:
+for i, result in enumerate(sampler.sample(pos, iterations=args.ns)):
+    if (i+1) % (args.ns//10) == 0:
         print("{0:5.1%}".format(float(i+1) / nsteps))
 
 plt.figure()
