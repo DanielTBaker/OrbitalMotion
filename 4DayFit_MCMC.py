@@ -106,17 +106,17 @@ def lnprob(theta,C,X,IFCM,lwrs,uprs):
 
 ndim, nwalkers = 34, 70
 
-start=np.zeros(ndim)
+init=np.zeros(ndim)
 names=np.empty(34,dtype=str) 
 for i in range(dates.shape[0]):
 	fname=args.f+dates[i][:2]
 	P=np.load(fname+'Fit2.npy')
-	start[i*7:(i+1)*7]=P[np.array([0,1,2,3,4,5,10])]
+	init[i*7:(i+1)*7]=P[np.array([0,1,2,3,4,5,10])]
 	names[i*7:(i+1)*7]=np.array(['N','A','t01','nt1','t02','nt2','A2'])
-start[-6:]=P[np.array([6,7,8,9,11,12])]
+init[-6:]=P[np.array([6,7,8,9,11,12])]
 names[-6:]=np.array(['nf','f01','f02','B','b01','b02'])
 
-pos=[(np.random.normal(0,1,ndim)*start/100)+start for i in range(nwalkers)]
+pos=[(np.random.normal(0,1,ndim)*init/100)+init for i in range(nwalkers)]
 
 print('pre-pool')
 pool = MPIPool(loadbalance=True)
@@ -186,14 +186,14 @@ for i in range(4):
 		plt.figure()
 		for k in range(nwalkers):
 			plt.plot(sampler.chain[k,:,i*7+j])
-		plt.title('%s (%s) : %s +- %s (%s)' %(names[i*7+j],i,sampler.chain[:,:,i*7+j].mean(),sampler.chain[:,:,i*7+j].std(),start[i*7+j]))
+		plt.title('%s (%s) : %s +- %s (%s)' %(names[i*7+j],i,sampler.chain[:,:,i*7+j].mean(),sampler.chain[:,:,i*7+j].std(),init[i*7+j]))
 		plt.savefig(args.f+dates[i][:2]+names[i*7+j]+'.png')
 		plt.clf()
 for i in range(6):
 	plt.figure()
 	for k in range(nwalkers):
 		plt.plot(sampler.chain[k,:,-6+i])
-	plt.title('%s : %s +- %s (%s)' %(names[-6+i],sampler.chain[:,:,-6+i].mean(),sampler.chain[:,:,-6+i].std(),start[-6+i]))
+	plt.title('%s : %s +- %s (%s)' %(names[-6+i],sampler.chain[:,:,-6+i].mean(),sampler.chain[:,:,-6+i].std(),init[-6+i]))
 	plt.savefig(args.f+names[-6+i]+'.png')
 	plt.clf()
 	
