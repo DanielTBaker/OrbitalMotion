@@ -13,10 +13,10 @@ Arguments:
 -nof Skip fitting
 """
 
+import pyfftw
 import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pyplot as plt
-import pyfftw
 import numpy as np
 import fitmod
 import argparse
@@ -195,5 +195,5 @@ for i in range(6):
 	plt.title('%s : %s +- %s (%s)' %(names[-6+i],sampler.chain[:,:,-6+i].mean(),sampler.chain[:,:,-6+i].std(),init[-6+i]))
 	plt.savefig(args.f+names[-6+i]+'.png')
 	plt.clf()
-	
+np.save(fname+'Samples.npy',sampler.chain)
 pool.close()

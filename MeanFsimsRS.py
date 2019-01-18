@@ -11,13 +11,13 @@ Arguments:
 Requires that Mask and estimator weights be known.
 """
 
+import pyfftw
 import numpy as np
 import argparse
 import simmod
 import fitmod
 import weight
 from mpi4py import MPI
-import pyfftw
 import sys
 from scipy.ndimage.filters import convolve1d
 from scipy.integrate import simps

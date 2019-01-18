@@ -13,6 +13,7 @@ Arguments:
 -nof Skip fitting
 """
 
+import pyfftw
 from mpi4py import MPI
 import numpy as np
 import fitmod
@@ -20,7 +21,6 @@ import argparse
 import weight
 from scipy.optimize import minimize,curve_fit
 import sys
-import pyfftw
 import os
 import re
 import pickle as pkl

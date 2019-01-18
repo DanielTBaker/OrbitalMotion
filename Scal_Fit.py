@@ -13,6 +13,7 @@ Arguments:
 -nof Skip fitting
 """
 
+import pyfftw
 import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pyplot as plt
@@ -22,7 +23,6 @@ import argparse
 import weight
 from scipy.optimize import minimize,curve_fit
 import sys
-import pyfftw
 from scipy.integrate import simps
 from scipy.ndimage.filters import convolve1d
 import os
