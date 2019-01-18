@@ -181,16 +181,15 @@ for i, result in enumerate(sampler.sample(pos, iterations=nsteps)):
     if (i+1) % 5 == 0:
         print("{0:5.1%}".format(float(i+1) / nsteps))
 
+plt.figure()
 for i in range(4):
 	for j in range(7):
-		plt.figure()
 		for k in range(nwalkers):
 			plt.plot(sampler.chain[k,:,i*7+j])
 		plt.title('%s (%s) : %s +- %s (%s)' %(names[i*7+j],i,sampler.chain[:,:,i*7+j].mean(),sampler.chain[:,:,i*7+j].std(),init[i*7+j]))
 		plt.savefig(args.f+dates[i][:2]+names[i*7+j]+'.png')
 		plt.clf()
 for i in range(6):
-	plt.figure()
 	for k in range(nwalkers):
 		plt.plot(sampler.chain[k,:,-6+i])
 	plt.title('%s : %s +- %s (%s)' %(names[-6+i],sampler.chain[:,:,-6+i].mean(),sampler.chain[:,:,-6+i].std(),init[-6+i]))
