@@ -179,7 +179,7 @@ uprs=np.ones(34)*np.inf
 sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob, pool=pool,args=(C_list,X,IFCM_list,lwrs,uprs))
 for i, result in enumerate(sampler.sample(pos, iterations=args.ns)):
     if (i+1) % (args.ns//10) == 0:
-        print("{0:5.1%}".format(float(i+1) / nsteps))
+        print("{0:5.1%}".format(float(i+1) / args.ns))
 
 plt.figure()
 for i in range(4):
