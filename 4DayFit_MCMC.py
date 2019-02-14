@@ -116,6 +116,8 @@ for i in range(dates.shape[0]):
 	names[i*7:(i+1)*7]=np.array(['N','A','t01','nt1','t02','nt2','A2'])
 init[-6:]=P[np.array([6,7,8,9,11,12])]
 names[-6:]=np.array(['nf','f01','f02','B','b01','b02'])
+if rank==0:
+	print(names)
 
 pos=[(np.random.normal(0,1,ndim)*init/100)+init for i in range(nwalkers)]
 
@@ -187,13 +189,14 @@ for i in range(4):
 		for k in range(nwalkers):
 			plt.plot(sampler.chain[k,:,i*7+j])
 		plt.title('%s (%s) : %s +- %s (%s)' %(names[i*7+j],i,sampler.chain[:,:,i*7+j].mean(),sampler.chain[:,:,i*7+j].std(),init[i*7+j]))
-		plt.savefig(args.f+dates[i][:2]+names[i*7+j]+'.png')
+		plt.savefig('%s%s%s.png' %(args.f,dates[i][:2],names[i*7+j]))
 		plt.clf()
 for i in range(6):
 	for k in range(nwalkers):
 		plt.plot(sampler.chain[k,:,-6+i])
 	plt.title('%s : %s +- %s (%s)' %(names[-6+i],sampler.chain[:,:,-6+i].mean(),sampler.chain[:,:,-6+i].std(),init[-6+i]))
-	plt.savefig(args.f+names[-6+i]+'.png')
+	plt.savefig('%s%s.png' %(args.f,names[-6+i]))
 	plt.clf()
-np.save(fname+'Samples.npy',sampler.chain)
+np.save('%sSamples.npy' %args.f,sampler.chain)
+print(dates)
 pool.close()
