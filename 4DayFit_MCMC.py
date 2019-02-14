@@ -116,8 +116,6 @@ for i in range(dates.shape[0]):
 	names[i*7:(i+1)*7]=np.array(['N','A','t01','nt1','t02','nt2','A2'])
 init[-6:]=P[np.array([6,7,8,9,11,12])]
 names[-6:]=np.array(['nf','f01','f02','B','b01','b02'])
-if rank==0:
-	print(names)
 
 pos=[(np.random.normal(0,1,ndim)*init/100)+init for i in range(nwalkers)]
 
@@ -127,6 +125,7 @@ if not pool.is_master():
 	pool.wait()
 	sys.exit(0)
 print('post pool')
+print(names)
 
 ##variable arrays for fitting
 freq=np.fft.fftfreq(nt)
