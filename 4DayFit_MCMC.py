@@ -108,7 +108,7 @@ def lnprob(theta,C,X,IFCM,lwrs,uprs):
 ndim, nwalkers = 34, 70
 
 init=np.zeros(ndim)
-names=np.empty(34,dtype=str) 
+names=np.empty(34,dtype='<U3') 
 for i in range(dates.shape[0]):
 	fname=args.f+dates[i][:2]
 	P=np.load(fname+'Fit2.npy')
@@ -182,20 +182,23 @@ for i, result in enumerate(sampler.sample(pos, iterations=args.ns)):
     if (i+1) % (args.ns//10) == 0:
         print("{0:5.1%}".format(float(i+1) / args.ns))
 
-plt.figure()
 for i in range(4):
 	for j in range(7):
+		plt.figure(figsize=(8,8))
 		for k in range(nwalkers):
 			plt.plot(sampler.chain[k,:,i*7+j])
 		plt.title('%s (%s) : %s +- %s (%s)' %(names[i*7+j],i,sampler.chain[:,:,i*7+j].mean(),sampler.chain[:,:,i*7+j].std(),init[i*7+j]))
+		plt.axhline(init[i*7+j])
 		plt.savefig('%s%s%s.png' %(args.f,dates[i][:2],names[i*7+j]))
-		plt.clf()
+		plt.close('all')
 for i in range(6):
+	plt.figure(figsize=(8,8))
 	for k in range(nwalkers):
 		plt.plot(sampler.chain[k,:,-6+i])
 	plt.title('%s : %s +- %s (%s)' %(names[-6+i],sampler.chain[:,:,-6+i].mean(),sampler.chain[:,:,-6+i].std(),init[-6+i]))
+	plt.axhline(init[-6+i])
 	plt.savefig('%s%s.png' %(args.f,names[-6+i]))
-	plt.clf()
+	plt.close('all')
 np.save('%sSamples.npy' %args.f,sampler.chain)
 print(dates)
 pool.close()
