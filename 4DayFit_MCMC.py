@@ -178,27 +178,44 @@ lwrs[-2:]=np.array([-np.inf,-np.inf])
 uprs=np.ones(34)*np.inf
 
 sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob, pool=pool,args=(C_list,X,IFCM_list,lwrs,uprs))
-for i, result in enumerate(sampler.sample(pos, iterations=args.ns)):
+load=os.path.isfile('%sSamples.npy' %args.f)
+niters=args.ns
+if load:
+	samples_old=np.load('%sSamples.npy' %args.f)['samps']
+	names_old=np.load('%sSamples.npy' %args.f)['names']
+	dates_old=np.load('%sSamples.npy' %args.f)['dates']
+	if dates_old==dates:
+		niters-=samples_old.shape[1]
+		pos=samples_old[:,-1,:]
+for i, result in enumerate(sampler.sample(pos, iterations=niters)):
     if (i+1) % (args.ns//10) == 0:
-        print("{0:5.1%}".format(float(i+1) / args.ns))
+	samples=sampler.chain
+	if load and dates_old==dates:
+		samples=np.concatenate((samples_old,samples),axis=1)
+	np.savez('%sSamples.npy' %args.f,samps=samples,dates=dates,names=names)
+        print("{0:5.1%}".format(float(i+1) / niters))
+
+samples=sampler.chain
+if load and dates_old==dates:
+	samples=np.concatenate((samples_old,samples),axis=1)
 
 for i in range(4):
 	for j in range(7):
 		plt.figure(figsize=(8,8))
 		for k in range(nwalkers):
-			plt.plot(sampler.chain[k,:,i*7+j])
-		plt.title('%s (%s) : %s +- %s (%s)' %(names[i*7+j],i,sampler.chain[:,:,i*7+j].mean(),sampler.chain[:,:,i*7+j].std(),init[i*7+j]))
+			plt.plot(samples[k,:,i*7+j])
+		plt.title('%s (%s) : %s +- %s (%s)' %(names[i*7+j],i,samples[:,:,i*7+j].mean(),samples[:,:,i*7+j].std(),init[i*7+j]))
 		plt.axhline(init[i*7+j])
 		plt.savefig('%s%s%s.png' %(args.f,dates[i][:2],names[i*7+j]))
 		plt.close('all')
 for i in range(6):
 	plt.figure(figsize=(8,8))
 	for k in range(nwalkers):
-		plt.plot(sampler.chain[k,:,-6+i])
-	plt.title('%s : %s +- %s (%s)' %(names[-6+i],sampler.chain[:,:,-6+i].mean(),sampler.chain[:,:,-6+i].std(),init[-6+i]))
+		plt.plot(samples[k,:,-6+i])
+	plt.title('%s : %s +- %s (%s)' %(names[-6+i],samples[:,:,-6+i].mean(),samples[:,:,-6+i].std(),init[-6+i]))
 	plt.axhline(init[-6+i])
 	plt.savefig('%s%s.png' %(args.f,names[-6+i]))
 	plt.close('all')
-np.save('%sSamples.npy' %args.f,sampler.chain)
+np.savez('%sSamples.npy' %args.f,samps=samples,dates=dates,names=names)
 print(dates)
 pool.close()
