@@ -178,12 +178,12 @@ lwrs[-2:]=np.array([-np.inf,-np.inf])
 uprs=np.ones(34)*np.inf
 
 sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob, pool=pool,args=(C_list,X,IFCM_list,lwrs,uprs))
-load=os.path.isfile('%sSamples.npy' %args.f)
+load=os.path.isfile('%sSamples.npz' %args.f)
 niters=args.ns
 if load:
-	samples_old=np.load('%sSamples.npy' %args.f)['samps']
-	names_old=np.load('%sSamples.npy' %args.f)['names']
-	dates_old=np.load('%sSamples.npy' %args.f)['dates']
+	samples_old=np.load('%sSamples.npz' %args.f)['samps']
+	names_old=np.load('%sSamples.npz' %args.f)['names']
+	dates_old=np.load('%sSamples.npz' %args.f)['dates']
 	if dates_old==dates:
 		niters-=samples_old.shape[1]
 		pos=samples_old[:,-1,:]
@@ -192,8 +192,8 @@ for i, result in enumerate(sampler.sample(pos, iterations=niters)):
 		samples=sampler.chain
 	if load and dates_old==dates:
 		samples=np.concatenate((samples_old,samples),axis=1)
-	np.savez('%sSamples.npy' %args.f,samps=samples,dates=dates,names=names)
-        print("{0:5.1%}".format(float(i+1) / niters))
+	np.savez('%sSamples.npz' %args.f,samps=samples,dates=dates,names=names)
+	print("{0:5.1%}".format(float(i+1) / niters))
 
 samples=sampler.chain
 if load and dates_old==dates:
@@ -216,6 +216,6 @@ for i in range(6):
 	plt.axhline(init[-6+i])
 	plt.savefig('%s%s.png' %(args.f,names[-6+i]))
 	plt.close('all')
-np.savez('%sSamples.npy' %args.f,samps=samples,dates=dates,names=names)
+np.savez('%sSamples.npz' %args.f,samps=samples,dates=dates,names=names)
 print(dates)
 pool.close()
