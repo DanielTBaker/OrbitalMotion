@@ -190,10 +190,10 @@ if load:
 for i, result in enumerate(sampler.sample(pos, iterations=niters)):
 	if (i+1) % (args.ns//10) == 0:
 		samples=sampler.chain
-	if load and dates_old==dates:
-		samples=np.concatenate((samples_old,samples),axis=1)
-	np.savez('%sSamples.npz' %args.f,samps=samples,dates=dates,names=names)
-	print("{0:5.1%}".format(float(i+1) / niters))
+		if load and dates_old==dates:
+			samples=np.concatenate((samples_old,samples),axis=1)
+		np.savez('%sSamples.npz' %args.f,samps=samples,dates=dates,names=names)
+		print("{0:5.1%}".format(float(i+1) / niters))
 
 samples=sampler.chain
 if load and dates_old==dates:
