@@ -160,13 +160,13 @@ for i in range(dates.shape[0]):
 		msk_smooth[:,stop[i]-args.lt+1:stop[i]+1]*=(np.cos(np.pi*(t[np.newaxis,:])/(args.lt+1))+1)/2
 	print('Find IFCM')
 	sys.stdout.flush()
-	fft_G1[:]=msk_smooth*svd_gaps
+	fft_G1[:]=msk_smooth
 	##Correlation function of mask for use in conversions
 	fft_object_GF()
 	fft_G2*=np.conjugate(fft_G2)/(nf*nt)
 	fft_object_GB()
 	IFCM=np.copy(np.real(fft_G1))
-	fft_dspec1[:]=dspec*msk_smooth
+	fft_dspec1[:]=dspec*msk_smooth/svd_gaps
 	fft_object_dspecF12()
 	fft_object_dspecF23()
 	C_data[:]=np.copy(np.abs(fft_dspec3[:]/np.sqrt(nf*nt))**2)
