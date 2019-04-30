@@ -187,6 +187,7 @@ if load:
 	if np.all(dates==dates_old):
 		niters-=samples_old.shape[1]
 		pos=samples_old[:,-1,:]
+		print(pos.std)
 for i, result in enumerate(sampler.sample(pos, iterations=niters)):
 	if (i+1) % (args.ns//10) == 0:
 		samples=sampler.chain
