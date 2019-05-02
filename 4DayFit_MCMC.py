@@ -188,12 +188,14 @@ if load:
 		niters-=samples_old.shape[1]
 		pos=samples_old[:,-1,:]
 		print(pos.std)
+else:
+	samples_old=np.zeros((0,0,0))
 for i, result in enumerate(sampler.sample(pos, iterations=niters)):
 	if (i+1) % (args.ns//10) == 0:
 		samples=sampler.chain
 		if load and np.all(dates==dates_old):
 			samples=np.concatenate((samples_old,samples),axis=1)
-		np.savez('%sSamples.npz' %args.f,samps=samples[:,i+1+samples_old.shape[0],:],dates=dates,names=names)
+		np.savez('%sSamples.npz' %args.f,samps=samples[:,:i+1+samples_old.shape[1],:],dates=dates,names=names)
 		print("{0:5.1%}".format(float(i+1) / niters))
 
 samples=sampler.chain
