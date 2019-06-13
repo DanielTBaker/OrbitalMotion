@@ -151,7 +151,7 @@ F[:]=np.copy(fft_dspec2)/np.sqrt(nf)
 print('Fit Start',flush=True)
 tau2=np.fft.rfftfreq(nf)
 if os.path.isfile(fname+'Fit.npy') or os.path.isfile(fname+'Fit2.npy'):
-	if os.path.isfile(fname+'Fit.npy')
+	if os.path.isfile(fname+'Fit.npy'):
 		popt2=np.load(fname+'Fit.npy')
 	else:
 		popt2=np.load(fname+'Fit2.npy')
