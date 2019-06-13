@@ -49,8 +49,12 @@ parser.set_defaults(fit=True)
 args=parser.parse_args()
 fname=args.f+str(args.d)
 sz=np.load(fname+'dspec.npy').shape
-nf=np.min((sz[0],args.bf)).astype(int)
-nt=np.min((sz[1],args.bt)).astype(int)
+if args.T:
+	nf=np.min((sz[1],args.bf)).astype(int)
+	nt=np.min((sz[0],args.bt)).astype(int)
+else:
+	nf=np.min((sz[0],args.bf)).astype(int)
+	nt=np.min((sz[1],args.bt)).astype(int)
 
 if args.al==0:
 	dr='./AL0/'
@@ -106,8 +110,7 @@ freq=np.fft.fftfreq(nt)
 tau=np.fft.fftfreq(nf)
 
 farr=np.ones((tau.shape[0],freq.shape[0]))*freq
-tarr=np.ones((tau.shape[0],freq.shape[0])).T*tau
-tarr=tarr.T
+tarr=np.ones((tau.shape[0],freq.shape[0]))*tau[:,np.newaxis]
 X=(tarr,farr)
 
 ##Determine mask for missing time bins and reweight dspec (via svd)) to account for variations in gain
@@ -130,7 +133,7 @@ np.save(dr+fname+'MaskF.npy',mf)
 
 print('Find IFCM')
 sys.stdout.flush()
-fft_G1[:]=(np.ones((nt,nf))*mf).T*mt
+fft_G1[:]=mf[:,np.newaxis]*mt[np.newaxis,:]
 ##Correlation function of mask for use in conversions
 fft_object_GF()
 fft_G2*=np.conjugate(fft_G2)/(nf*nt)
