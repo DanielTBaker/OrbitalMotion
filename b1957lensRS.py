@@ -133,6 +133,7 @@ np.save(dr+fname+'MaskF.npy',mf)
 
 print('Find IFCM')
 sys.stdout.flush()
+print(nt,nf,mt.shape,mf.shape,flush=True)
 fft_G1[:]=mf[:,np.newaxis]*mt[np.newaxis,:]
 ##Correlation function of mask for use in conversions
 fft_object_GF()
