@@ -150,8 +150,11 @@ F[:]=np.copy(fft_dspec2)/np.sqrt(nf)
 ##Try to load global fit file if it exits or use best guess
 print('Fit Start',flush=True)
 tau2=np.fft.rfftfreq(nf)
-try:
-	popt2=np.load(fname+'Fit.npy')
+if os.path.isfile(fname+'Fit.npy') or os.path.isfile(fname+'Fit2.npy'):
+	if os.path.isfile(fname+'Fit.npy')
+		popt2=np.load(fname+'Fit.npy')
+	else:
+		popt2=np.load(fname+'Fit2.npy')
 	globf=True
 	meth='Nelder-Mead'
 	CG=fitmod.pow_arr2D2(X,*popt2[1:])
@@ -164,7 +167,7 @@ try:
 	CT[:]=fft_dspec3[:]
 	popt2[0]*=(C_data/CT)[np.abs(tau2)>3*tau2.max()/4,:][:,np.abs(freq)>3*freq.max()/4].mean()
 	print('Parameters Loaded',flush=True)
-except:
+else:
 	Ng=C_data[1:,np.abs(freq)>.25].mean()/(mf.mean()*mt.mean())
 	Ngscal=Ng*((mf.mean()*mt.mean()))
 	Ag=np.sqrt(C_data[1:10,1:10].mean()-Ngscal)*100
