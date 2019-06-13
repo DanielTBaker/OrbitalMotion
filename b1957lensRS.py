@@ -65,18 +65,16 @@ else:
 	if not os.path.isdir(dr):
 		os.makedirs(dr)
 
-print('Parsed')
-sys.stdout.flush()
+print('Parsed',flush=True)
 
 nthread=args.th
 
-print('Start FFT Setup')
+print('Start FFT Setup',flush=True)
 ##Check if wisdom exists to speed the ffts
-sys.stdout.flush()
 try:
 	pyfftw.import_wisdom(pkl.load(open('pyfftwwis-1-%s.pkl' % args.th,'rb')))
 except:
-	print('No Wisdom')
+	print('No Wisdom',flush=True)
 ##Initialize ffts
 fft_G1= pyfftw.empty_aligned((nf,nt), dtype='complex128')
 fft_G2= pyfftw.empty_aligned((nf,nt), dtype='complex128')
@@ -92,8 +90,7 @@ fft_object_dspecB32=pyfftw.FFTW(fft_dspec3,fft_dspec2, axes=(1,), direction='FFT
 fft_object_dspecB21=pyfftw.FFTW(fft_dspec2,fft_dspec1, axes=(0,), direction='FFTW_BACKWARD',threads=nthread)
 pkl.dump(pyfftw.export_wisdom(),open('pyfftwwis-1-%s.pkl' % args.th,'wb'))
 
-print('FFT Setup Complete')
-sys.stdout.flush()
+print('FFT Setup Complete',flush=True)
 
 C_data=np.zeros(fft_dspec3.shape)
 F=np.zeros(fft_dspec3.shape,dtype=complex)
@@ -114,8 +111,8 @@ tarr=np.ones((tau.shape[0],freq.shape[0]))*tau[:,np.newaxis]
 X=(tarr,farr)
 
 ##Determine mask for missing time bins and reweight dspec (via svd)) to account for variations in gain
-print('Find Mask')
-mf,mt,dspec=fitmod.NormMask(dspec,args.lf,args.lt)
+print('Find Mask',flush=True)
+mt,mf,dspec=fitmod.NormMask(dspec,args.lf,args.lt)
 t=np.linspace(1,args.lf,args.lf)
 start,stop=fitmod.bnd_find(mf,mf.shape[0])
 for i in range(start.shape[0]):
@@ -131,9 +128,7 @@ for i in range(start.shape[0]):
 np.save(dr+fname+'MaskT.npy',mt)
 np.save(dr+fname+'MaskF.npy',mf)
 
-print('Find IFCM')
-sys.stdout.flush()
-print(nt,nf,mt.shape,mf.shape,flush=True)
+print('Find IFCM',flush=True)
 fft_G1[:]=mf[:,np.newaxis]*mt[np.newaxis,:]
 ##Correlation function of mask for use in conversions
 fft_object_GF()
@@ -142,8 +137,7 @@ fft_object_GB()
 IFCM=np.copy(np.real(fft_G1))
 
 ##Find Power Spectrum
-print('Caclulate Power')
-sys.stdout.flush()
+print('Caclulate Power',flush=True)
 fft_dspec1[:]=np.copy(dspec)*mf[:,np.newaxis]*mt[np.newaxis,:]
 fft_object_dspecF12()
 fft_object_dspecF23()
@@ -154,8 +148,7 @@ fft_object_dspecF12()
 F[:]=np.copy(fft_dspec2)/np.sqrt(nf)
 
 ##Try to load global fit file if it exits or use best guess
-print('Fit Start')
-sys.stdout.flush()
+print('Fit Start',flush=True)
 tau2=np.fft.rfftfreq(nf)
 try:
 	popt2=np.load(fname+'Fit.npy')
@@ -170,7 +163,7 @@ try:
 	CT=np.zeros(CC.shape)
 	CT[:]=fft_dspec3[:]
 	popt2[0]*=(C_data/CT)[np.abs(tau2)>3*tau2.max()/4,:][:,np.abs(freq)>3*freq.max()/4].mean()
-	print('Parameters Loaded')
+	print('Parameters Loaded',flush=True)
 except:
 	Ng=C_data[1:,np.abs(freq)>.25].mean()/(mf.mean()*mt.mean())
 	Ngscal=Ng*((mf.mean()*mt.mean()))
@@ -247,8 +240,7 @@ if not globf:
 	sys.exit('No Global Fit')
 N=popt[0]
 popt2=np.load(args.f+'GlobFit.npy')
-print('Theoretical Powers')
-sys.stdout.flush()
+print('Theoretical Powers',flush=True)
 ##Theoretical Powers
 ##Note that these are the powers WITHOUT the effect of gaps as we wish to compare them locally
 fft_G1[:]=(np.ones((nt,nf))*mf).T
@@ -275,7 +267,7 @@ if args.G:
 	CG=fitmod.pow_arr2D2(X,*fit2[1:])/sigscal
 	CC=np.copy(fitmod.gauss_to_chi(CG,fft_G1,fft_G2,fft_object_GF,fft_object_GB))
 else:
-	print('Daily Fit Only')
+	print('Daily Fit Only',flush=True)
 #fft_dspec3[:]=CC
 #fft_object_dspecB32()
 #fft_object_dspecB21()
