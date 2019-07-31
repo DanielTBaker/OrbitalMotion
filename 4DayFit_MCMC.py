@@ -46,7 +46,15 @@ parser.set_defaults(G=False)
 parser.set_defaults(fit=True)
 args=parser.parse_args()
 
-dates=np.array([re.findall('[0-9][0-9]dspec.npy',f) for f in os.listdir('./') if re.search('[0-9]+dspec.npy',f)])[:,0]
+
+load=os.path.isfile('%sSamples.npz' %args.f)
+if load:
+	samples_old=np.load('%sSamples.npz' %args.f)['samps']
+	names_old=np.load('%sSamples.npz' %args.f)['names']
+	dates=np.load('%sSamples.npz' %args.f)['dates']
+else:
+	samples_old=np.zeros((0,0,0))
+	dates=np.array([re.findall('[0-9][0-9]dspec.npy',f) for f in os.listdir('./') if re.search('[0-9]+dspec.npy',f)])[:,0]
 
 nt=500
 nf=500
@@ -178,22 +186,12 @@ lwrs[-2:]=np.array([-np.inf,-np.inf])
 uprs=np.ones(34)*np.inf
 
 sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob, pool=pool,args=(C_list,X,IFCM_list,lwrs,uprs))
-load=os.path.isfile('%sSamples.npz' %args.f)
 niters=args.ns
-if load:
-	samples_old=np.load('%sSamples.npz' %args.f)['samps']
-	names_old=np.load('%sSamples.npz' %args.f)['names']
-	dates_old=np.load('%sSamples.npz' %args.f)['dates']
-	if np.all(dates==dates_old):
-		niters-=samples_old.shape[1]
-		pos=samples_old[:,-1,:]
-		print(pos.std)
-else:
-	samples_old=np.zeros((0,0,0))
+
 for i, result in enumerate(sampler.sample(pos, iterations=niters)):
 	if (i+1) % (args.ns//10) == 0:
 		samples=sampler.chain
-		if load and np.all(dates==dates_old):
+		if load:
 			samples=np.concatenate((samples_old,samples),axis=1)
 		np.savez('%sSamples.npz' %args.f,samps=samples[:,:i+1+samples_old.shape[1],:],dates=dates,names=names)
 		print("{0:5.1%}".format(float(i+1) / niters))
