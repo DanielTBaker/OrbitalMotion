@@ -125,7 +125,11 @@ for i in range(dates.shape[0]):
 init[-6:]=P[np.array([6,7,8,9,11,12])]
 names[-6:]=np.array(['nf','f01','f02','B','b01','b02'])
 
-pos=[(np.random.normal(0,1,ndim)*init/100)+init for i in range(nwalkers)]
+if load:
+	pos=samples_old[:,-1,:]
+else:
+	pos=[(np.random.normal(0,1,ndim)*init/100)+init for i in range(nwalkers)]
+
 
 print('pre-pool')
 pool = MPIPool(loadbalance=True)
