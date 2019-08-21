@@ -196,7 +196,7 @@ sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob, pool=pool,args=(C_list,X
 niters=args.ns
 
 for i, result in enumerate(sampler.sample(pos, iterations=niters)):
-	if (i+1) % (args.ns//10) == 0:
+	if (i+1) % (1) == 0:
 		samples=sampler.chain
 		if load:
 			samples=np.concatenate((samples_old,samples),axis=1)
