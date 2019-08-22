@@ -116,7 +116,7 @@ def lnprob(theta,C,X,IFCM,lwrs,uprs):
 		lp2-=fitmod.costfunc(P,C[i],X,IFCM[i],fft_G1,fft_G2,fft_object_GF,fft_object_GB,fft_dspec1,fft_dspec2,fft_dspec3,fft_object_dspecF12,fft_object_dspecF23,fft_object_dspecB32,fft_object_dspecB21)
 	return(lp+lp2)
 
-ndim, nwalkers = 34, 70
+ndim, nwalkers = 34, 80
 
 init=np.zeros(ndim)
 names=np.empty(34,dtype='<U3') 
@@ -196,7 +196,7 @@ sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob, pool=pool,args=(C_list,X
 niters=args.ns
 
 for i, result in enumerate(sampler.sample(pos, iterations=niters)):
-	if (i+1) % (1) == 0:
+	if (i+1) % (niters//10) == 0:
 		samples=sampler.chain
 		if load:
 			samples=np.concatenate((samples_old,samples),axis=1)
