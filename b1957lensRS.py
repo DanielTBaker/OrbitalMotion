@@ -178,8 +178,8 @@ for i in range(F2.shape[0]):
 L=np.real(F[1:,:]*F2*(A[1:][:,np.newaxis]))
 
 np.save('%s%s/%sLens.npy' % (dr,args.samp,fname),L)
-np.save('%s%s/%sA_%s.npy' % (dr,args.samp,fname),A)
-np.save('%s%s/%sK2_%s.npy' % (dr,args.samp,fname),K2)
+np.save('%s%s/%sA.npy' % (dr,args.samp,fname),A)
+np.save('%s%s/%sK2.npy' % (dr,args.samp,fname),K2)
 
 fft_dspec3[:]=CC+N
 fft_object_dspecB32()
