@@ -32,7 +32,6 @@ import pickle as pkl
 ##Command Line Arguments
 parser = argparse.ArgumentParser(description='Lens Recovery Code for B1957')
 parser.add_argument('-d', type=int, help='Observation Date')
-parser.add_argument('-nof', dest='fit', action='store_false', help='Skip Fitting')
 parser.add_argument('-f',type=str,help='fname prefix')
 parser.add_argument('-T',dest='T',action='store_true',help='Transpose dspec')
 parser.add_argument('-bt',type=float,default=np.inf,help='Number of Time Bins')
@@ -40,7 +39,6 @@ parser.add_argument('-bf',type=float,default=np.inf,help='Number of Frequncy Bin
 parser.add_argument('-lt', type=int,default = 50,help='Mask Smoothing Length in Time')
 parser.add_argument('-lf', type=int,default = 20,help='Mask Smoothing Length in Frequency')
 parser.add_argument('-th', type=int,default = 8,help='Number of Threads')
-parser.add_argument('-G',dest='G',action='store_true',help='Use Global Fiducial C')
 parser.add_argument('-al',type=float,default=0,help='Global Frequency Scaling')
 parser.add_argument('-samp',type=int,help='MCMC sample Number')
 
