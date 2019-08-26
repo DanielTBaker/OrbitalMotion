@@ -81,8 +81,8 @@ else:
 ##Import mask
 mf=np.load(dr+fname+'MaskF.npy')
 mt=np.load(dr+fname+'MaskT.npy')
-mt[mt>0]==1
-mf[mf>0]==1
+mt[mt>0]=1
+mf[mf>0]=1
 
 
 ##Divide simulations between processors 
@@ -115,7 +115,7 @@ K2=np.load('%s%s/%sK2.npy' % (dr,args.samp,fname))
 F2=np.zeros(fft_dspec2[1:,:].shape,dtype=complex)
 L=np.zeros(F2.shape)
 MF=np.load('%s%s/%sMF.npy' % (dr,args.samp,fname))
-nw=int((K2.shape[0]-1)/2)
+nw=int((K2.shape[1]-1)/2)
 
 avg=np.zeros(nt)
 for i in range(nt):
