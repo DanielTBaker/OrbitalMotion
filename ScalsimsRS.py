@@ -41,8 +41,8 @@ parser.add_argument('-f',type=str,help='fname prefix')
 parser.add_argument('-th', type=int,default = 8,help='Number of Threads')
 parser.add_argument('-nf', type=int,default = 6000,help='Number of Channels')
 parser.add_argument('-nt', type=int,default = 2108,help='Number of Time Bins')
-parser.add_argument('-G',dest='G',action='store_true',help='Use Global Fiducial C')
 parser.add_argument('-al',type=float,default=0,help='Global Frequency Scaling')
+parser.add_argument('-samp',type=int,help='MCMC sample Number')
 
 parser.set_defaults(G=False)
 
@@ -54,11 +54,6 @@ if args.al==0:
 	dr='./AL0/'
 else:
 	dr='./AL%s/' % format(args.al,'.3e')
-
-##Import Fit Parameters
-popt=np.load(fname+'Fit.npy')
-N=popt[0]
-popt2=np.load(args.f+'GlobFit.npy')
 
 nt=args.nt
 nf=args.nf
@@ -106,23 +101,19 @@ tarr=np.ones((nf,nt)).T*tau
 tarr=tarr.T
 X=(tarr,farr)
 
-CG=fitmod.pow_arr2D2(X,*popt[1:])
+MCMC=np.load('%sSamples.npz' %args.f)
+date_idx=int(np.argwhere(MCMC['dates']=='%sdspec.npy' %args.d)[0])
+glob_fit=np.zeros(13)
+glob_fit[np.array([0,1,2,3,4,5,10])]=MCMC['samps'][:,args.samp,date_idx*7:(date_idx+1)*7].mean(0)
+glob_fit[np.array([6,7,8,9,11,12])]=MCMC['samps'][:,args.samp,-6:].mean(0)
+CG=fitmod.pow_arr2D2(X,*glob_fit[1:])
+CC=np.copy(fitmod.gauss_to_chi(CG,fft_G1,fft_G2,fft_object_GF,fft_object_GB))
+N=glob_fit[0]
 
-if args.G:
-	CC=np.copy(fitmod.gauss_to_chi(CG,fft_G1,fft_G2,fft_object_GF,fft_object_GB))
-	temp=np.fft.fftshift(CC)
-	sigscal=np.sqrt(simps(simps(temp,dx=1/nt,axis=1),dx=1/nf,axis=0))
-	#sigscal=np.sqrt(CC[1,1])
-	N/=sigscal**2
-	##Theoretical Powers
-	fit2=np.load(fname+'Fit2.npy')
-	CG=np.zeros(CG.shape)
-	X=(tarr,farr/(1.+args.al))
-	CG=fitmod.pow_arr2D2(X,*fit2[1:])/sigscal
 
 ##Import Estimator Variables
-A=np.load('%s%sA.npy' % (dr,fname))
-K2=np.load('%s%sK2.npy' % (dr,fname))
+A=np.load('%s%s/%sA.npy' % (dr,args.samp,fname))
+K2=np.load('%s%s/%sK2.npy' % (dr,args.samp,fname))
 F2=np.zeros(fft_dspec2[1:,:].shape,dtype=complex)
 L=np.zeros(F2.shape)
 
