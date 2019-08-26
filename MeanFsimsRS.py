@@ -44,6 +44,7 @@ parser.add_argument('-nf', type=int,default = 6000,help='Number of Channels')
 parser.add_argument('-nt', type=int,default = 2108,help='Number of Time Bins')
 parser.add_argument('-G',dest='G',action='store_true',help='Use Global Fiducial C')
 parser.add_argument('-al',type=float,default=0,help='Global Frequency Scaling')
+parser.add_argument('-samp',type=int,help='MCMC sample Number')
 
 parser.set_defaults(G=False)
 
@@ -107,22 +108,18 @@ tarr=np.ones((nf,nt)).T*tau
 tarr=tarr.T
 X=(tarr,farr)
 
-CG=fitmod.pow_arr2D2(X,*popt[1:])
-if args.G:
-	CC=np.copy(fitmod.gauss_to_chi(CG,fft_G1,fft_G2,fft_object_GF,fft_object_GB))
-	temp=np.fft.fftshift(CC)
-	sigscal=np.sqrt(simps(simps(temp,dx=1/nt,axis=1),dx=1/nf,axis=0))
-	#sigscal=np.sqrt(CC[1,1])
-	N/=sigscal**2
-	##Theoretical Powers
-	fit2=np.load(fname+'Fit2.npy')
-	CG=np.zeros(CG.shape)
-	X=(tarr,farr/(1.+args.al))
-	CG=fitmod.pow_arr2D2(X,*fit2[1:])/sigscal
+MCMC=np.load('%sSamples.npz' %args.f)
+date_idx=np.argwhere(MCMC['dates']==args.d)[0]
+glob_fit=np.zeros(13)
+glob_fit[np.array([0,1,2,3,4,5,10])]=MCMC['samps'][:,args.samp,date_idx*7:(date_idx+1)*7].mean(0)
+glob_fit[np.array([6,7,8,9,11,12])]=MCMC['samps'][:,args.samp,-6:].mean(0)
+CG=fitmod.pow_arr2D2(X,*glob_fit[1:])
+CC=np.copy(fitmod.gauss_to_chi(CG,fft_G1,fft_G2,fft_object_GF,fft_object_GB))
+N=glob_fit[0]
 
 ##Import Estimator Variables
-A=np.load('%s%sA.npy' % (dr,fname))
-K2=np.load('%s%sK2.npy' % (dr,fname))
+A=np.load('%s%sA_%s.npy' % (dr,fname,args.samp))
+K2=np.load('%s%sK2_%s.npy' % (dr,fname,args.samp))
 F2=np.zeros(fft_dspec2[1:,:].shape,dtype=complex)
 L=np.zeros(F2.shape)
 for k in range(lengs[int(rank)]):
@@ -156,7 +153,7 @@ comm.Barrier()
 comm.Reduce(L,recvbuff,root=0,op=MPI.SUM)
 if rank==0:
 	recvbuff/=n
-	np.save('%s%sMF.npy' % (dr,fname),recvbuff)
+	np.save('%s%sMF_%s.npy' % (dr,fname,args.samp),recvbuff)
 	
 	
 
