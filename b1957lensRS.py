@@ -59,11 +59,16 @@ if args.al==0:
 	dr='./AL0/'
 	if not os.path.isdir(dr):
 		os.makedirs(dr)
+		os.makedirs('%s%s/' %(dr,args.samp))
+	elif not os.path.isdir('%s%s/' %(dr,args.samp)):
+		os.makedirs('%s%s/' %(dr,args.samp))
 else:
 	dr='./AL%s/' % format(args.al,'.3e')
 	if not os.path.isdir(dr):
 		os.makedirs(dr)
-
+		os.makedirs('%s%s/' %(dr,args.samp))
+	elif not os.path.isdir('%s%s/' %(dr,args.samp)):
+		os.makedirs('%s%s/' %(dr,args.samp))
 print('Parsed',flush=True)
 
 nthread=args.th
@@ -172,9 +177,9 @@ for i in range(F2.shape[0]):
 
 L=np.real(F[1:,:]*F2*(A[1:][:,np.newaxis]))
 
-np.save('%s%sLens_%s.npy' % (dr,fname,args.samp),L)
-np.save('%s%sA_%s.npy' % (dr,fname,args.samp),A)
-np.save('%s%sK2_%s.npy' % (dr,fname,args.samp),K2)
+np.save('%s%s/%sLens.npy' % (dr,args.samp,fname),L)
+np.save('%s%s/%sA_%s.npy' % (dr,args.samp,fname),A)
+np.save('%s%s/%sK2_%s.npy' % (dr,args.samp,fname),K2)
 
 fft_dspec3[:]=CC+N
 fft_object_dspecB32()
@@ -194,7 +199,7 @@ for i in range(3):
 		plt.loglog(freq,np.mean(fft_dspec3[1000*i:1000*(i+1),:],axis=0),'b')
 		plt.loglog(-freq,np.mean(fft_dspec3[1000*i:1000*(i+1),:],axis=0),'y')
 plt.legend(loc=0)
-plt.savefig('%s%sPowComp_%s.png' % (dr,fname,args.samp))
+plt.savefig('%s%s/%sPowComp.png' % (dr,args.samp,fname))
 plt.clf()
 plt.imshow(dspec*mf[:,np.newaxis]*mt[np.newaxis,:])
 plt.savefig('%s%sdspec.png' % (dr,fname))
