@@ -101,7 +101,7 @@ tarr=tarr.T
 X=(tarr,farr)
 
 MCMC=np.load('%sSamples.npz' %args.f)
-date_idx=np.argwhere(MCMC['dates']=='%sdspec.npy' %args.d)[0]
+date_idx=int(np.argwhere(MCMC['dates']=='%sdspec.npy' %args.d)[0])
 glob_fit=np.zeros(13)
 glob_fit[np.array([0,1,2,3,4,5,10])]=MCMC['samps'][:,args.samp,date_idx*7:(date_idx+1)*7].mean(0)
 glob_fit[np.array([6,7,8,9,11,12])]=MCMC['samps'][:,args.samp,-6:].mean(0)
