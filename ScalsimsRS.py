@@ -153,7 +153,7 @@ comm.Barrier()
 comm.Reduce(L,recvbuff,root=0,op=MPI.SUM)
 if rank==0:
 	recvbuff/=n
-	np.save('%s%sScal.npy' % (dr,fname),recvbuff)
+	np.save('%s%s/%sScal.npy' % (dr,args.samp,fname),recvbuff)
 	
 	
 
