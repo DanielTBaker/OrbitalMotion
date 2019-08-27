@@ -116,7 +116,8 @@ X=(tarr,farr)
 
 ##Determine mask for missing time bins and reweight dspec (via svd)) to account for variations in gain
 print('Find Mask',flush=True)
-mt,mf,dspec=fitmod.NormMask(dspec,args.lf,args.lt)
+mt,mf,dspec_svd=fitmod.NormMask(dspec,args.lf,args.lt)
+dspec/=dspec_svd
 t=np.linspace(1,args.lf,args.lf)
 start,stop=fitmod.bnd_find(mf,mf.shape[0])
 for i in range(start.shape[0]):
