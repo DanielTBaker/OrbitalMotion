@@ -65,7 +65,7 @@ def pow_arr2D2(X,A=1e8,t01=.01,nt1=2,t02=.01,nt2=2,nf=2,f01=.01,f02=.01,B=0,A2=1
 def fit_func(X,IFCM,P,fftG1,fftG2,fftGF,fftGB,fftD1,fftD2,fftD3,fftDF12,fftDF23,fftDB32,fftDB21):
 	CG=pow_arr2D2(X,*P[1:])
 	CC=gauss_to_chi(CG,fftG1,fftG2,fftGF,fftGB)+P[0]
-	CC[0,0]=fftG1.shape[0]*fftG1.shape[1]
+	# CC[0,0]=fftG1.shape[0]*fftG1.shape[1]
 	pow_holes(CC,IFCM,fftD1,fftD2,fftD3,fftDF12,fftDF23,fftDB32,fftDB21)
 
 
