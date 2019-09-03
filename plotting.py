@@ -108,7 +108,7 @@ for D in dates:
     fft_dspec1[:]=np.copy(dspec)*mf[:,np.newaxis]*mt[np.newaxis,:]
     fft_object_dspecF12()
     fft_object_dspecF23()
-    C_data[:]=np.copy(np.abs(fft_dspec3[:]/np.sqrt(nf*nt))**2)
+    C_data=np.copy(np.abs(fft_dspec3[:]/np.sqrt(nf*nt))**2)
 
     date_idx=int(np.argwhere(dates == D)[0])
     glob_fit=np.zeros(13)
