@@ -54,6 +54,7 @@ load=os.path.isfile('%sSamples.npz' %args.f)
 if load:
 	samples_old=np.load('%sSamples.npz' %args.f)['samps']
 	names_old=np.load('%sSamples.npz' %args.f)['names']
+	probs_old=np.load('%sSamples.npz' %args.f)['probs']
 	dates=np.load('%sSamples.npz' %args.f)['dates']
 else:
 	samples_old=np.zeros((0,0,0))
@@ -204,8 +205,10 @@ for i, result in enumerate(sampler.sample(pos, iterations=niters)):
 		print("Step %s of %s finished at %s" %(i+1,niters,MPI.Wtime()-run_start),flush=True)
 
 samples=sampler.chain
+probs=sampler.lnprobability
 if load and np.all(dates==dates_old):
 	samples=np.concatenate((samples_old,samples),axis=1)
+	samples=np.concatenate((probs_old,probs),axis=1)
 
 for i in range(4):
 	for j in range(7):
@@ -224,6 +227,6 @@ for i in range(6):
 	plt.axhline(init[-6+i])
 	plt.savefig('%s%s.png' %(args.f,names[-6+i]))
 	plt.close('all')
-np.savez('%sSamples.npz' %args.f,samps=samples,dates=dates,names=names)
+np.savez('%sSamples.npz' %args.f,samps=samples,dates=dates,names=names,probs=probs)
 print(dates)
 pool.close()
