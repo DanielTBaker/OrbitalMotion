@@ -23,7 +23,7 @@ samps=data['samps']
 dates=data['dates']
 names=data['names']
 
-with PdfPages('MCMC_chains.pdf') as pdf:
+with PdfPages('Plots/MCMC_chains.pdf') as pdf:
 	for i in range(dates.shape[0]):
 		for k in range(7):
 			plt.figure()
