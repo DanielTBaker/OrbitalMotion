@@ -125,7 +125,7 @@ for D in dates:
     fft_dspec1*=IFCM
     fft_object_dspecF12()
     fft_object_dspecF23()
-    plt.subplot(2,2,date_idx)
+    plt.subplot(2,2,date_idx+1)
     plt.title('2016/04/%s' %D[:2])
     for i in range(3):
         if i==0:
