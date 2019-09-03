@@ -50,7 +50,7 @@ with PdfPages('MCMC_chains.pdf') as pdf:
 nthread=20
 
 for D in dates:
-    dspec=np.load('b1957-201416%sdspec.npy' %D[:2])
+    dspec=np.load('b1957-201406%sdspec.npy' %D[:2])
 
     sz=dspec.shape
     nf=sz[0]
