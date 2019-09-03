@@ -206,7 +206,7 @@ for i, result in enumerate(sampler.sample(pos, iterations=niters)):
 
 samples=sampler.chain
 probs=sampler.lnprobability
-if load and np.all(dates==dates_old):
+if load:
 	samples=np.concatenate((samples_old,samples),axis=1)
 	samples=np.concatenate((probs_old,probs),axis=1)
 
